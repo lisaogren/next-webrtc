@@ -1,0 +1,24 @@
+{
+  "presets": [
+    [
+      "next/babel",
+      {
+        "styled-jsx": {
+          "plugins": [
+            "styled-jsx-plugin-sass"
+          ]
+        }
+      }
+    ]
+  ],
+  "plugins": [
+    "transform-async-to-generator",
+    "transform-decorators-legacy",
+    [
+      "module-resolver",
+      {
+        "root": ["./"]
+      }
+    ]
+  ]
+}
