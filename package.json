@@ -16,6 +16,7 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "axios": "^0.17.1",
     "form-serialize": "^0.7.2",
     "include-all": "^1.0.0",
     "lodash": "^4.17.4",
@@ -30,7 +31,8 @@
     "sails-hook-next": "^1.1.0",
     "sails.io.js": "^1.1.13",
     "simple-peer": "^8.1.1",
-    "socket.io": "^2.0.4"
+    "socket.io": "^2.0.4",
+    "url-composer": "^1.14.0"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.1",
