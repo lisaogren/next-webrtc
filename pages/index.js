@@ -9,6 +9,9 @@ import { Video } from 'components/video'
 
 @observer
 class HomePage extends Component {
+  myVideo = null
+  theirVideo = null
+
   constructor (props) {
     super(props)
     this.myVideo = null
@@ -16,16 +19,17 @@ class HomePage extends Component {
 
   componentDidMount () {
     signal.init()
-
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then(stream => signal.createPeer({ initiator: true, stream }))
-      .catch((...args) => console.debug(...args))
   }
 
   render () {
     const mySrc = signal.src('mine')
+    const theirSrc = signal.src('theirs')
+
     if (mySrc) {
       this.myVideo = <Video src={mySrc} />
+    }
+    if (theirSrc) {
+      this.theirVideo = <Video src={theirSrc} />
     }
 
     return (
@@ -35,6 +39,7 @@ class HomePage extends Component {
           <Status />
           <Login />
           {this.myVideo}
+          {this.theirVideo}
         </div>
       </Provider>
     )

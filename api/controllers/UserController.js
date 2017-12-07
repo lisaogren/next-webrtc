@@ -4,6 +4,10 @@ const { remove, find } = require('lodash')
 
 const users = []
 
+// sails.io.on('connection', (socket) => {
+//   console.log('[UserController] Got a socket connection!', socket)
+// })
+
 module.exports = {
   list (req, res) {
     return res.json(
