@@ -8,10 +8,10 @@ class Video extends Component {
   }
 
   render () {
-    const { src } = this.props
+    const { src, className } = this.props
 
     return (
-      <video src={src} ref={this.setVideo} autoPlay />
+      <video className={className} src={src} ref={this.setVideo} autoPlay />
     )
   }
 

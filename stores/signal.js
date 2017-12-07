@@ -7,7 +7,10 @@ import api from 'utils/api'
 class Signal {
   io = null
   peer = null
-  @observable stream = null
+  @observable streams = {
+    mine: null,
+    theirs: null
+  }
 
   @observable username = null
   @observable connected = false
@@ -15,9 +18,11 @@ class Signal {
   @observable signals = []
 
   @computed get src () {
-    if (!this.stream) return
+    return (type) => {
+      if (!this.streams[type]) return
 
-    return window.URL.createObjectURL(this.stream)
+      return window.URL.createObjectURL(this.streams[type])
+    }
   }
 
   init () {
@@ -79,8 +84,10 @@ class Signal {
   createPeer = (options) => {
     this.peer = new SimplePeer(options)
 
+    this.streams.mine = options.stream
+
     this.peer.on('signal', data => signal.send(data))
-    this.peer.on('stream', stream => { this.stream = stream })
+    this.peer.on('stream', stream => { this.streams.theirs = stream })
   }
 }
 

@@ -9,6 +9,11 @@ import { Video } from 'components/video'
 
 @observer
 class HomePage extends Component {
+  constructor (props) {
+    super(props)
+    this.myVideo = null
+  }
+
   componentDidMount () {
     signal.init()
 
@@ -18,7 +23,10 @@ class HomePage extends Component {
   }
 
   render () {
-    const { users } = signal
+    const mySrc = signal.src('mine')
+    if (mySrc) {
+      this.myVideo = <Video src={mySrc} />
+    }
 
     return (
       <Provider signal={signal}>
@@ -26,13 +34,7 @@ class HomePage extends Component {
           <h1>Simple Hangout!</h1>
           <Status />
           <Login />
-          <div>
-            <h3>Users</h3>
-            <ul>
-              {users.map(({ username }) => <li key={username}>{username}</li>)}
-            </ul>
-          </div>
-          <Video src={signal.src} />
+          {this.myVideo}
         </div>
       </Provider>
     )
