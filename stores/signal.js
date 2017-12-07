@@ -1,23 +1,37 @@
-import { observable, action } from 'mobx'
+import { observable, action, computed } from 'mobx'
 
-import client from 'socket.io-client'
-import sailsIO from 'sails.io.js'
+import SimplePeer from 'simple-peer'
 
 import api from 'utils/api'
 
 class Signal {
   io = null
+  peer = null
+  @observable stream = null
 
   @observable username = null
   @observable connected = false
+  @observable users = []
   @observable signals = []
 
-  init () {
-    this.io = sailsIO(client)
-    this.io.sails.url = 'http://localhost:1337'
+  @computed get src () {
+    if (!this.stream) return
 
-    this.io.socket.on('connect', this.connect)
-    this.io.socket.on('disconnect', this.disconnect)
+    return window.URL.createObjectURL(this.stream)
+  }
+
+  init () {
+    this.io =
+
+    api.setup()
+
+    api.io.sails.url = 'http://localhost:1337'
+
+    api.io.socket.on('connect', this.connect)
+    api.io.socket.on('disconnect', this.disconnect)
+    api.io.socket.on('signal', this.signal)
+
+    this.getList()
   }
 
   @action connect = () => {
@@ -30,14 +44,43 @@ class Signal {
     this.connected = false
   }
 
-  @action login = async ({ username }) => {
+  @action login = ({ username }) => {
     console.debug('[signal] Login using', username)
 
-    this.io.socket.post('/api/login', { username }, (data, response) => {
-      console.debug('[signal] Login response', response)
+    const data = { username }
 
-      if (response.statusCode === 200) this.username = data.username
+    api.socket.login({ data }).then(data => {
+      this.username = data.username
     })
+  }
+
+  @action getList = () => {
+    console.debug('[signal] Getting users list')
+
+    api.socket.list().then(data => {
+      this.users = data
+    })
+  }
+
+  @action send = (data) => {
+    api.socket.signal({ data }).then(() => {
+      console.debug('sent signal data', data)
+    })
+  }
+
+  signal = (data) => {
+    console.debug('[signal] Got `signal` event', data)
+
+    if (!this.peer) this.createPeer()
+
+    this.peer.signal(data)
+  }
+
+  createPeer = (options) => {
+    this.peer = new SimplePeer(options)
+
+    this.peer.on('signal', data => signal.send(data))
+    this.peer.on('stream', stream => { this.stream = stream })
   }
 }
 

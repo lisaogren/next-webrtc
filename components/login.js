@@ -11,16 +11,10 @@ class Login extends Component {
   }
 
   render () {
-    const { username } = this.signal
-
     return (
       <form onSubmit={this.submit}>
         <label htmlFor='username'>Username:</label>
-        {
-          username
-            ? <span>{username}</span>
-            : <span><input type='text' id='username' name='username' /><button type='submit'>Login</button></span>
-        }
+        {this.renderUsername()}
         <style jsx>{`
           label {
             margin-right: .5rem;
@@ -35,12 +29,46 @@ class Login extends Component {
     )
   }
 
+  renderUsername () {
+    const { username } = this.signal
+
+    if (username) {
+      return (
+        <span>
+          <span>{username}</span>
+          <button type='submit'>Logout</button>
+          <style jsx>{`
+            button {
+              margin-left: .5rem;
+            }
+          `}</style>
+        </span>
+      )
+    }
+
+    return (
+      <span>
+        <input type='text' id='username' name='username' />
+        <button type='submit'>Login</button>
+        <style jsx>{`
+          button {
+            margin-left: .5rem;
+          }
+        `}</style>
+      </span>
+    )
+  }
+
   submit = e => {
     e.preventDefault()
 
-    const { username } = serialize(e.currentTarget)
+    if (this.signal.username) {
+      this.signal.logout()
+    } else {
+      const { username } = serialize(e.currentTarget)
 
-    this.signal.login({ username })
+      this.signal.login({ username })
+    }
   }
 }
 
