@@ -26,11 +26,9 @@ class Signal {
   }
 
   init () {
-    this.io =
-
     api.setup()
 
-    api.io.sails.url = 'http://localhost:1337'
+    api.io.sails.url = window.location.origin
 
     api.io.socket.on('connect', this.connect)
     api.io.socket.on('disconnect', this.disconnect)

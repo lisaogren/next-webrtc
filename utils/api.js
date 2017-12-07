@@ -23,6 +23,8 @@ class Api {
     }
   }
 
+  io = null
+
   constructor () {
     this.request = partial(this.sendRequest, this.xhrAdapter)
     this.socket = partial(this.sendRequest, this.socketAdapter)
