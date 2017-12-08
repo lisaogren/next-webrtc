@@ -34,6 +34,8 @@ class Signal {
     api.io.socket.on('disconnect', this.disconnect)
     api.io.socket.on('signal', this.signal)
     api.io.socket.on('join', this.join)
+
+    this.getUserMedia()
   }
 
   // Actions
@@ -77,7 +79,7 @@ class Signal {
   @action join = (data) => {
     console.debug('[signal] Received join event!', data)
 
-    this.getUserMedia({ initiator: true, mine: true })
+    this.createPeer({ initiator: true })
   }
 
   // Helpers
@@ -86,24 +88,14 @@ class Signal {
     console.debug('[signal] Got `signal` event', data)
 
     if (!this.peer) {
-      this.getUserMedia({ initiator: false }).then(() => {
-        console.debug('[signal]')
-
-        this.peer.signal(data)
-      })
-    } else {
-      this.peer.signal(data)
+      this.createPeer({ initiator: false })
     }
+
+    this.peer.signal(data)
   }
 
-  createPeer = (options) => {
-    this.peer = new SimplePeer(options)
-
-    if (options.mine) {
-      this.streams.mine = options.stream
-    } else {
-      this.streams.theirs = options.stream
-    }
+  createPeer = ({ initiator }) => {
+    this.peer = new SimplePeer({ initiator, stream: this.streams.mine })
 
     this.peer.on('signal', data => signal.send(data))
     this.peer.on('stream', stream => {
@@ -113,13 +105,11 @@ class Signal {
     })
   }
 
-  getUserMedia = ({ initiator = false, mine = true }) => {
+  getUserMedia = () => {
     return navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then(stream => this.createPeer({ mine, initiator, stream }))
+      .then(stream => { this.streams.mine = stream })
       .catch((...args) => {
         console.debug('[signal] getUserMedia error', ...args)
-
-        this.createPeer({ mine, initiator })
       })
   }
 }
