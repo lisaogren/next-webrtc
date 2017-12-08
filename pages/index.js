@@ -12,11 +12,6 @@ class HomePage extends Component {
   myVideo = null
   theirVideo = null
 
-  constructor (props) {
-    super(props)
-    this.myVideo = null
-  }
-
   componentDidMount () {
     signal.init()
   }
@@ -26,7 +21,7 @@ class HomePage extends Component {
     const theirSrc = signal.src('theirs')
 
     if (mySrc) {
-      this.myVideo = <Video src={mySrc} />
+      this.myVideo = <Video src={mySrc} muted mine />
     }
     if (theirSrc) {
       this.theirVideo = <Video src={theirSrc} />
@@ -34,12 +29,25 @@ class HomePage extends Component {
 
     return (
       <Provider signal={signal}>
-        <div>
+        <div className='main-container'>
           <h1>Simple Hangout!</h1>
           <Status />
           <Login />
           {this.myVideo}
           {this.theirVideo}
+
+          <style jsx global>{`
+            html, body {
+              margin: 0;
+              padding: 0;
+              background: black;
+              color: white;
+            }
+
+            .main-container {
+              padding: 1px;
+            }
+          `}</style>
         </div>
       </Provider>
     )

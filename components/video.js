@@ -1,26 +1,34 @@
 import { Component } from 'react'
+import classNames from 'classnames'
 
 class Video extends Component {
-  constructor (props) {
-    super(props)
-
-    this.video = null
-  }
+  video = null
 
   render () {
-    const { src, className } = this.props
+    const { mine = false, ...props } = this.props
+    const classes = classNames({
+      'my-video': mine
+    })
 
     return (
-      <video className={className} src={src} ref={this.setVideo} autoPlay />
+      <video className={classes} ref={this.setVideo} autoPlay {...props}>
+        <style jsx>{`
+          .my-video {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 200px;
+            border: white solid 1px;
+            border-width: 1px 0 0 1px;
+            z-index: 10;
+          }
+        `}</style>
+      </video>
     )
   }
 
   setVideo = (el) => {
     this.video = el
-  }
-
-  play = () => {
-    this.video.play()
   }
 }
 
