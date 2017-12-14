@@ -7,7 +7,8 @@ class Video extends Component {
   render () {
     const { mine = false, ...props } = this.props
     const classes = classNames({
-      'my-video': mine
+      'my-video': mine,
+      'their-video': !mine
     })
 
     return (
@@ -21,6 +22,10 @@ class Video extends Component {
             border: white solid 1px;
             border-width: 1px 0 0 1px;
             z-index: 10;
+          }
+
+          .their-video {
+
           }
         `}</style>
       </video>

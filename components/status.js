@@ -1,5 +1,6 @@
 import { Component } from 'react'
 import { observer, inject } from 'mobx-react'
+import classNames from 'classnames'
 
 @inject('signal') @observer
 class Status extends Component {
@@ -11,17 +12,34 @@ class Status extends Component {
   render () {
     const { connected } = this.signal
 
-    const content = connected ? 'Connected' : 'Disconnected'
+    const status = connected ? 'Connected' : 'Disconnected'
+    const lightClasses = classNames('light', {
+      'is-green': connected,
+      'is-red': !connected
+    })
 
     return (
-      <div className='status'>
-        {content}
+      <div className='status' title={`Current connection status: ${status}`}>
+        <div className={lightClasses} />
         <style jsx>{`
           .status {
             position: fixed;
             top: 0;
             right: 0;
             padding: .5rem;
+          }
+
+          .light {
+            width: 15px;
+            height: 15px;
+            border-radius: 7.5px;
+
+            &.is-green {
+              background: green;
+            }
+            &.is-red {
+              background: red;
+            }
           }
         `}</style>
       </div>

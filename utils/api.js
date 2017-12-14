@@ -12,12 +12,16 @@ class Api {
         path: '/api/login',
         method: 'post'
       },
-      list: {
-        path: '/api/list',
-        method: 'get'
+      logout: {
+        path: '/api/logout',
+        method: 'post'
       },
       signal: {
         path: '/api/signal',
+        method: 'post'
+      },
+      ready: {
+        path: '/api/ready',
         method: 'post'
       }
     }

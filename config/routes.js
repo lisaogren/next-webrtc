@@ -21,8 +21,8 @@
  */
 
 module.exports.routes = {
-  'get /api/list': 'UserController.list',
   'post /api/login': 'UserController.login',
   'post /api/logout': 'UserController.logout',
-  'post /api/signal': 'UserController.signal'
+  'post /api/signal': 'UserController.signal',
+  'post /api/ready': 'UserController.ready'
 }

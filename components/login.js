@@ -13,9 +13,16 @@ class Login extends Component {
   render () {
     return (
       <form onSubmit={this.submit}>
-        <label htmlFor='username'>Username:</label>
         {this.renderUsername()}
         <style jsx>{`
+          form {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+
           label {
             margin-right: .5rem;
             font-weight: bold;
@@ -32,30 +39,53 @@ class Login extends Component {
   renderUsername () {
     const { username } = this.signal
 
-    if (username) {
-      return (
-        <span>
-          <span>{username}</span>
-          <button type='submit'>Logout</button>
-          <style jsx>{`
-            button {
-              margin-left: .5rem;
-            }
-          `}</style>
-        </span>
-      )
-    }
-
     return (
       <span>
-        <input type='text' id='username' name='username' />
-        <button type='submit'>Login</button>
+        {!username
+          ? <input type='text' id='username' name='username' placeholder='Your username' />
+          : null
+        }
+        {this.btn()}
         <style jsx>{`
-          button {
-            margin-left: .5rem;
+          input {
+            background: transparent;
+            color: #eee;
+            border-width: 0 0 1px 0;
+            border-bottom: #eee dotted 1px;
+            padding: .5rem;
+            font-size: 1.5rem;
+            outline: none;
+
+            &:focus, &:hover {
+              border-bottom: #eee solid 1px;
+            }
           }
         `}</style>
       </span>
+    )
+  }
+
+  btn () {
+    const { username } = this.signal
+
+    let style
+
+    if (!username) {
+      style = { display: 'none' }
+    } else {
+      style = {
+        position: 'fixed',
+        top: 0,
+        left: 0
+      }
+    }
+
+    return (
+      <button type='submit' style={style}>
+        {username ? 'Logout' : 'Login'}
+        <style jsx>{`
+        `}</style>
+      </button>
     )
   }
 

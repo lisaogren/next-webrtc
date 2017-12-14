@@ -6,20 +6,21 @@ import api from 'utils/api'
 
 class Signal {
   io = null
-  peer = null
+  p2p = null
+
   @observable streams = {
     mine: null,
     theirs: null
   }
 
   @observable username = null
+  @observable ready = false
   @observable connected = false
-  @observable users = []
-  @observable signals = []
+  @observable peer = null
 
   @computed get src () {
     return (type) => {
-      if (!this.streams[type]) return
+      if (!this.streams[type]) return null
 
       return window.URL.createObjectURL(this.streams[type])
     }
@@ -34,38 +35,45 @@ class Signal {
     api.io.socket.on('disconnect', this.disconnect)
     api.io.socket.on('signal', this.signal)
     api.io.socket.on('join', this.join)
-
-    this.getUserMedia()
+    api.io.socket.on('peer', ({ peer }) => this.foundPeer({ peer, initiator: true }))
   }
 
   // Actions
 
-  @action connect = () => {
-    console.debug('[signal] Connected')
-    this.connected = true
-  }
+  @action connect = () => { this.connected = true }
+  @action disconnect = () => { this.connected = false }
 
-  @action disconnect = () => {
-    console.debug('[signal] Disconnected')
-    this.connected = false
-  }
-
-  @action login = ({ username }) => {
+  @action login = async ({ username }) => {
     console.debug('[signal] Login using', username)
 
     const data = { username }
 
-    api.socket.login({ data }).then(data => {
-      this.username = data.username
-    })
+    const response = await api.socket.login({ data })
+
+    this.username = response.username
+
+    await this.getUserMedia()
+
+    this.setReady()
   }
 
-  @action getList = () => {
-    console.debug('[signal] Getting users list')
+  @action logout = async () => {
+    console.debug('[signal] Logout')
 
-    api.socket.list().then(data => {
-      this.users = data
-    })
+    await api.socket.logout()
+
+    if (this.p2p) {
+      this.p2p.destroy()
+      this.p2p = null
+    }
+
+    this.username = null
+
+    if (this.streams.mine) this.stop(this.streams.mine)
+    if (this.streams.theirs) this.stop(this.streams.theirs)
+
+    this.streams.mine = null
+    this.streams.theirs = null
   }
 
   @action send = (data) => {
@@ -82,23 +90,45 @@ class Signal {
     this.createPeer({ initiator: true })
   }
 
+  @action setReady = async () => {
+    console.debug('[signal] Setting user ready')
+
+    this.ready = true
+
+    const { peer } = await api.socket.ready()
+
+    if (peer) {
+      this.foundPeer({ peer })
+    }
+  }
+
+  @action foundPeer = ({ peer, initiator = false }) => {
+    console.debug('[signal] Found peer:', peer, ', initiator:', initiator)
+
+    this.peer = peer
+
+    if (initiator) {
+      this.createPeer({ initiator: true })
+    }
+  }
+
   // Helpers
 
   signal = (data) => {
     console.debug('[signal] Got `signal` event', data)
 
-    if (!this.peer) {
+    if (!this.p2p) {
       this.createPeer({ initiator: false })
     }
 
-    this.peer.signal(data)
+    this.p2p.signal(data)
   }
 
   createPeer = ({ initiator }) => {
-    this.peer = new SimplePeer({ initiator, stream: this.streams.mine })
+    this.p2p = new SimplePeer({ initiator, stream: this.streams.mine })
 
-    this.peer.on('signal', data => signal.send(data))
-    this.peer.on('stream', stream => {
+    this.p2p.on('signal', data => signal.send(data))
+    this.p2p.on('stream', stream => {
       console.debug('[signal] Peer stream event!')
 
       this.streams.theirs = stream
@@ -111,6 +141,12 @@ class Signal {
       .catch((...args) => {
         console.debug('[signal] getUserMedia error', ...args)
       })
+  }
+
+  stop = (stream) => {
+    if (!stream) return
+
+    stream.getTracks().forEach(track => track.stop())
   }
 }
 

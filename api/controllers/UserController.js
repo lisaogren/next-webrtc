@@ -1,63 +1,71 @@
 /* globals sails */
 
-const { remove, find } = require('lodash')
+const { remove, find, get } = require('lodash')
 
 const users = []
 
-// sails.io.on('connection', (socket) => {
-//   console.log('[UserController] Got a socket connection!', socket)
-// })
-
 module.exports = {
-  list (req, res) {
-    return res.json(
-      users.map(({ username }) => ({ username }))
-    )
-  },
-
   login (req, res) {
     if (!req.isSocket) return res.badRequest()
 
     const username = req.param('username')
     const id = sails.sockets.getId(req)
 
-    console.log('[UserController] Login using', username)
+    console.log('[UserController] Login:', username)
 
     const user = find(users, { id })
 
     if (user) {
       user.username = username
     } else {
-      users.push({ id, username })
+      users.push({ id, username, ready: false, peer: null })
     }
 
-    sails.sockets.join(req, 'rtc', err => {
-      if (err) return res.serverError(err)
-
-      sails.sockets.broadcast('rtc', 'join', { username }, req)
-
-      return res.json({ username })
-    })
+    return res.json({ username })
   },
 
   logout (req, res) {
     if (!req.isSocket) return res.badRequest()
 
     const id = sails.sockets.getId(req)
+    const user = find(users, { id })
 
-    sails.sockets.leave(req, 'rtc', err => {
-      if (err) return res.serverError(err)
+    console.log('[UserController] Logout:', user.username)
 
-      const user = find(users, { id })
+    if (user) {
+      const peer = find(users, u => u.peer && u.peer.id === user.id)
 
-      if (user) {
-        sails.sockets.broadcast('rtc', 'leave', user, req)
+      if (peer) delete peer.peer
 
-        remove(users, { id })
-      }
+      remove(users, { id })
+    }
 
-      return res.ok()
-    })
+    return res.ok()
+  },
+
+  ready (req, res) {
+    if (!req.isSocket) return res.badRequest()
+
+    const id = sails.sockets.getId(req)
+    const user = find(users, { id })
+
+    if (!user) return res.badRequest()
+
+    console.log('[UserController] Ready:', user.username)
+
+    user.ready = true
+
+    // Find a user that is ready, has no peer and is not me
+    const peer = find(users, user => user.ready && user.id !== id && !user.peer)
+
+    if (peer) {
+      user.peer = peer
+      peer.peer = user
+
+      sails.sockets.broadcast(peer.id, 'peer', { peer: user.username })
+    }
+
+    res.json({ peer: get(peer, 'username') })
   },
 
   signal (req, res) {
@@ -65,8 +73,15 @@ module.exports = {
 
     const data = req.param('data')
 
-    sails.sockets.broadcast('rtc', 'signal', data, req)
+    const id = sails.sockets.getId(req)
+    const user = find(users, { id })
 
-    return res.ok()
+    if (!user || !user.peer) return res.badRequest()
+
+    console.log('[UserController] Signal from:', user.username, ', to:', user.peer.username)
+
+    sails.sockets.broadcast(user.peer.id, 'signal', data)
+
+    res.ok()
   }
 }
