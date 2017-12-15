@@ -3,8 +3,7 @@ import { inject, observer } from 'mobx-react'
 
 import Icon from 'components/icon'
 
-@inject('signal')
-@observer
+@inject('signal') @observer
 class Logout extends Component {
   render () {
     return (
