@@ -4,6 +4,7 @@ import { Provider, observer } from 'mobx-react'
 import { signal } from 'stores/signal'
 
 import { Login } from 'components/login'
+import { Logout } from 'components/logout'
 import { Status } from 'components/status'
 import { Video } from 'components/video'
 
@@ -32,7 +33,7 @@ class HomePage extends Component {
       <Provider signal={signal}>
         <div className='main-container'>
           <Status />
-          <Login />
+          {signal.isLoggedIn ? <Logout /> : <Login />}
           {myVideo}
           {theirVideo}
 

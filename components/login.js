@@ -83,8 +83,6 @@ class Login extends Component {
     return (
       <button type='submit' style={style}>
         {username ? 'Logout' : 'Login'}
-        <style jsx>{`
-        `}</style>
       </button>
     )
   }

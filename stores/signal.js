@@ -18,6 +18,10 @@ class Signal {
   @observable connected = false
   @observable peer = null
 
+  @computed get isLoggedIn () {
+    return Boolean(this.username)
+  }
+
   @computed get src () {
     return (type) => {
       if (!this.streams[type]) return null
