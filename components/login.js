@@ -1,19 +1,28 @@
 import { Component } from 'react'
 import { observer, inject } from 'mobx-react'
 
+import Icon from 'components/icon'
+
 import { serialize } from 'utils/form-serialize'
 
 @inject('signal') @observer
 class Login extends Component {
-  constructor (props) {
-    super(props)
-    this.signal = props.signal
+  state = {
+    error: null
   }
 
   render () {
+    const { error } = this.state
+
     return (
       <form onSubmit={this.submit}>
-        {this.renderUsername()}
+        <div>
+          <input type='text' name='username' placeholder='Your username' onChange={this.resetError} />
+          <button type='submit' title='Login'>
+            <Icon name='arrow-right' fontSize='1.5rem' />
+          </button>
+        </div>
+        {error ? <div className='error-msg'>{error}</div> : null}
         <style jsx>{`
           form {
             width: 100%;
@@ -21,6 +30,7 @@ class Login extends Component {
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
           }
 
           label {
@@ -28,25 +38,12 @@ class Login extends Component {
             font-weight: bold;
           }
 
-          input {
-            margin-right: .5rem;
+          button {
+            background: transparent;
+            border: 0;
+            cursor: pointer;
           }
-        `}</style>
-      </form>
-    )
-  }
 
-  renderUsername () {
-    const { username } = this.signal
-
-    return (
-      <span>
-        {!username
-          ? <input type='text' id='username' name='username' placeholder='Your username' />
-          : null
-        }
-        {this.btn()}
-        <style jsx>{`
           input {
             background: transparent;
             color: #eee;
@@ -60,43 +57,30 @@ class Login extends Component {
               border-bottom: #eee solid 1px;
             }
           }
+
+          .error-msg {
+            margin-top: .5rem;
+            color: #cf5959;
+            font-style: italic;
+          }
         `}</style>
-      </span>
+      </form>
     )
   }
 
-  btn () {
-    const { username } = this.signal
-
-    let style
-
-    if (!username) {
-      style = { display: 'none' }
-    } else {
-      style = {
-        position: 'fixed',
-        top: 0,
-        left: 0
-      }
-    }
-
-    return (
-      <button type='submit' style={style}>
-        {username ? 'Logout' : 'Login'}
-      </button>
-    )
+  resetError = () => {
+    this.setState({ error: null })
   }
 
   submit = e => {
     e.preventDefault()
 
-    if (this.signal.username) {
-      this.signal.logout()
-    } else {
-      const { username } = serialize(e.currentTarget)
+    const { signal } = this.props
+    const { username } = serialize(e.currentTarget)
 
-      this.signal.login({ username })
-    }
+    if (!username) return this.setState({ error: `You can't leave the username empty` })
+
+    signal.login({ username })
   }
 }
 
