@@ -25,7 +25,8 @@ class Video extends Component {
           }
 
           .their-video {
-
+            max-width: 100%;
+            max-height: 100%;
           }
         `}</style>
       </video>

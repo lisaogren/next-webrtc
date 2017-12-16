@@ -10,9 +10,6 @@ import { Video } from 'components/video'
 
 @observer
 class HomePage extends Component {
-  myVideo = null
-  theirVideo = null
-
   componentDidMount () {
     signal.init()
   }
@@ -22,20 +19,20 @@ class HomePage extends Component {
     const theirSrc = signal.src('theirs')
 
     let myVideo, theirVideo
-    if (mySrc) {
-      myVideo = <Video src={mySrc} muted mine />
-    }
-    if (theirSrc) {
-      theirVideo = <Video src={theirSrc} />
-    }
+    if (mySrc) myVideo = <Video src={mySrc} muted mine />
+    if (theirSrc) theirVideo = <Video src={theirSrc} />
 
     return (
       <Provider signal={signal}>
         <div className='main-container'>
-          <Status />
           {signal.isLoggedIn ? <Logout /> : <Login />}
-          {myVideo}
-          {theirVideo}
+
+          <div className='video-container'>
+            {myVideo}
+            {theirVideo}
+          </div>
+
+          <Status />
 
           <style jsx global>{`
             html, body {
@@ -52,6 +49,14 @@ class HomePage extends Component {
             }
 
             body, body > div:first-child, #__next, .main-container, [data-reactroot] {
+              width: 100%;
+              height: 100%;
+            }
+
+            .video-container {
+              display: flex;
+              justify-content: center;
+              align-items: center;
               width: 100%;
               height: 100%;
             }

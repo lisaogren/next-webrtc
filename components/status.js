@@ -4,13 +4,8 @@ import classNames from 'classnames'
 
 @inject('signal') @observer
 class Status extends Component {
-  constructor (props) {
-    super(props)
-    this.signal = props.signal
-  }
-
   render () {
-    const { connected } = this.signal
+    const { connected } = this.props.signal
 
     const status = connected ? 'Connected' : 'Disconnected'
     const lightClasses = classNames('light', {
@@ -25,14 +20,16 @@ class Status extends Component {
           .status {
             position: fixed;
             bottom: 0;
-            left: 0;
+            right: 0;
             padding: .5rem;
+            z-index: 20;
           }
 
           .light {
             width: 15px;
             height: 15px;
             border-radius: 7.5px;
+            border: #222 solid 1px;
 
             &.is-green {
               background: green;

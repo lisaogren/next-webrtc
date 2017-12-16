@@ -15,15 +15,36 @@ class Login extends Component {
     const { error } = this.state
 
     return (
-      <form onSubmit={this.submit}>
-        <div>
-          <input type='text' name='username' placeholder='Your username' onChange={this.resetError} />
-          <button type='submit' title='Login'>
-            <Icon name='arrow-right' fontSize='1.5rem' />
-          </button>
-        </div>
-        {error ? <div className='error-msg'>{error}</div> : null}
+      <div className='login-container'>
+        <header>
+          <h1>WebRTC Roulette</h1>
+        </header>
+
+        <form onSubmit={this.submit}>
+          <div>
+            <input type='text' name='username' placeholder='Choose a nickname' onChange={this.resetError} />
+            <button type='submit' title='Login'>
+              <Icon name='arrow-right' fontSize='1.5rem' />
+            </button>
+          </div>
+          {error ? <div className='error-msg'>{error}</div> : null}
+        </form>
+
         <style jsx>{`
+          .login-container {
+            width: 100%;
+            height: 100%;
+          }
+
+          header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding-top: 1rem;
+            text-align: center;
+          }
+
           form {
             width: 100%;
             height: 100%;
@@ -64,7 +85,7 @@ class Login extends Component {
             font-style: italic;
           }
         `}</style>
-      </form>
+      </div>
     )
   }
 
