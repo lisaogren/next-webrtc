@@ -98,6 +98,7 @@ lib-cov
 *.pid
 npm-debug.log
 package-lock.json
+yarn.lock
 
 
 
